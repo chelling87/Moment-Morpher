@@ -1,7 +1,10 @@
 import ROOT as R
 from ROOT import RooDataHist, RooHistPdf, RooArgList, RooFit, RooArgSet
 import os
+import numpy as np
+import time
 
+startTime = time.time()
 ###  Cole Helling, November 3rd 2018, UC Santa Cruz ###
 # The purpose of this script is to read in template histograms at
 # various masses (say 100, 125, 150, 175, and 200 in this case) 
@@ -169,9 +172,10 @@ def load_histos(filename):
 # which in then made into a RooHistPdf.
 # TODO  For now, this only helps with the p/m1s files.  I will either
 # do away with this, or make it applicable to the 2 and 3 cases.
-def makePDFs(Files, pdf_list):
+def makePDFs(Files, pdf_list, evntCount):
 	for (inputMass, inputFilename) in Files:		
 		histo = load_histos(inputFilename)
+		evntCount.append(histo.Integral())
 		# could construct name and title from inputmass
 		if 'nom' in inputFilename:
 			myString = inputFilename.partition("230_")[2].partition("_result")[0] + str(inputMass)
@@ -314,30 +318,30 @@ fillParamVecs(Nominal_paramVec , Nominal_inputFiles )
 fillParamVecs(Base_m1s_paramVec, Base_m1s_inputFiles)
 fillParamVecs(Base_m2s_paramVec, Base_m2s_inputFiles)
 fillParamVecs(Base_m3s_paramVec, Base_m3s_inputFiles)
-fillParamVecs(Base_m1s_paramVec, Base_m1s_inputFiles)
-fillParamVecs(Base_m2s_paramVec, Base_m2s_inputFiles)
-fillParamVecs(Base_m3s_paramVec, Base_m3s_inputFiles)
+fillParamVecs(Base_p1s_paramVec, Base_p1s_inputFiles)
+fillParamVecs(Base_p2s_paramVec, Base_p2s_inputFiles)
+fillParamVecs(Base_p3s_paramVec, Base_p3s_inputFiles)
 
 fillParamVecs(Mod_m1s_paramVec, Mod_m1s_inputFiles)
 fillParamVecs(Mod_m2s_paramVec, Mod_m2s_inputFiles)
 fillParamVecs(Mod_m3s_paramVec, Mod_m3s_inputFiles)
-fillParamVecs(Mod_m1s_paramVec, Mod_m1s_inputFiles)
-fillParamVecs(Mod_m2s_paramVec, Mod_m2s_inputFiles)
-fillParamVecs(Mod_m3s_paramVec, Mod_m3s_inputFiles)
+fillParamVecs(Mod_p1s_paramVec, Mod_p1s_inputFiles)
+fillParamVecs(Mod_p2s_paramVec, Mod_p2s_inputFiles)
+fillParamVecs(Mod_p3s_paramVec, Mod_p3s_inputFiles)
 
 fillParamVecs(Stat_m1s_paramVec, Stat_m1s_inputFiles)
 fillParamVecs(Stat_m2s_paramVec, Stat_m2s_inputFiles)
 fillParamVecs(Stat_m3s_paramVec, Stat_m3s_inputFiles)
-fillParamVecs(Stat_m1s_paramVec, Stat_m1s_inputFiles)
-fillParamVecs(Stat_m2s_paramVec, Stat_m2s_inputFiles)
-fillParamVecs(Stat_m3s_paramVec, Stat_m3s_inputFiles)
+fillParamVecs(Stat_p1s_paramVec, Stat_p1s_inputFiles)
+fillParamVecs(Stat_p2s_paramVec, Stat_p2s_inputFiles)
+fillParamVecs(Stat_p3s_paramVec, Stat_p3s_inputFiles)
 
 fillParamVecs(Track_m1s_paramVec, Track_m1s_inputFiles)
 fillParamVecs(Track_m2s_paramVec, Track_m2s_inputFiles)
 fillParamVecs(Track_m3s_paramVec, Track_m3s_inputFiles)
-fillParamVecs(Track_m1s_paramVec, Track_m1s_inputFiles)
-fillParamVecs(Track_m2s_paramVec, Track_m2s_inputFiles)
-fillParamVecs(Track_m3s_paramVec, Track_m3s_inputFiles)
+fillParamVecs(Track_p1s_paramVec, Track_p1s_inputFiles)
+fillParamVecs(Track_p2s_paramVec, Track_p2s_inputFiles)
+fillParamVecs(Track_p3s_paramVec, Track_p3s_inputFiles)
 
 # Setup workspace, x variable, Canvas and frame
 w = R.RooWorkspace('w')
@@ -377,36 +381,70 @@ Track_p1s_pdf_list = []
 Track_p2s_pdf_list = []
 Track_p3s_pdf_list = []
 
+
+# To get the event counts for each mass
+Nom_evntCount = []
+
+Base_m1s_evntCount = []
+Base_m2s_evntCount = []
+Base_m3s_evntCount = []
+Base_p1s_evntCount = []
+Base_p2s_evntCount = []
+Base_p3s_evntCount = []
+
+Mod_m1s_evntCount = []
+Mod_m2s_evntCount = []
+Mod_m3s_evntCount = []
+Mod_p1s_evntCount = []
+Mod_p2s_evntCount = []
+Mod_p3s_evntCount = []
+
+Stat_m1s_evntCount = []
+Stat_m2s_evntCount = []
+Stat_m3s_evntCount = []
+Stat_p1s_evntCount = []
+Stat_p2s_evntCount = []
+Stat_p3s_evntCount = []
+
+Track_m1s_evntCount = []
+Track_m2s_evntCount = []
+Track_m3s_evntCount = []
+Track_p1s_evntCount = []
+Track_p2s_evntCount = []
+Track_p3s_evntCount = []
+
+
+
 # Make the Pdfs	
-makePDFs(Nominal_inputFiles , Nominal_pdf_list )
+makePDFs(Nominal_inputFiles , Nominal_pdf_list, Nom_evntCount)
 
-makePDFs(Base_m1s_inputFiles, Base_m1s_pdf_list)
-makePDFs(Base_m2s_inputFiles, Base_m2s_pdf_list)
-makePDFs(Base_m3s_inputFiles, Base_m3s_pdf_list)
-makePDFs(Base_p1s_inputFiles, Base_p1s_pdf_list)
-makePDFs(Base_p2s_inputFiles, Base_p2s_pdf_list)
-makePDFs(Base_p3s_inputFiles, Base_p3s_pdf_list)
+makePDFs(Base_m1s_inputFiles, Base_m1s_pdf_list ,Base_m1s_evntCount)
+makePDFs(Base_m2s_inputFiles, Base_m2s_pdf_list ,Base_m2s_evntCount)
+makePDFs(Base_m3s_inputFiles, Base_m3s_pdf_list ,Base_m3s_evntCount)
+makePDFs(Base_p1s_inputFiles, Base_p1s_pdf_list ,Base_p1s_evntCount)
+makePDFs(Base_p2s_inputFiles, Base_p2s_pdf_list ,Base_p2s_evntCount)
+makePDFs(Base_p3s_inputFiles, Base_p3s_pdf_list ,Base_p3s_evntCount)
 
-makePDFs(Mod_m1s_inputFiles, Mod_m1s_pdf_list)
-makePDFs(Mod_m2s_inputFiles, Mod_m2s_pdf_list)
-makePDFs(Mod_m3s_inputFiles, Mod_m3s_pdf_list)
-makePDFs(Mod_p1s_inputFiles, Mod_p1s_pdf_list)
-makePDFs(Mod_p2s_inputFiles, Mod_p2s_pdf_list)
-makePDFs(Mod_p3s_inputFiles, Mod_p3s_pdf_list)
+makePDFs(Mod_m1s_inputFiles, Mod_m1s_pdf_list, Mod_m1s_evntCount)
+makePDFs(Mod_m2s_inputFiles, Mod_m2s_pdf_list, Mod_m2s_evntCount)
+makePDFs(Mod_m3s_inputFiles, Mod_m3s_pdf_list, Mod_m3s_evntCount)
+makePDFs(Mod_p1s_inputFiles, Mod_p1s_pdf_list, Mod_p1s_evntCount)
+makePDFs(Mod_p2s_inputFiles, Mod_p2s_pdf_list, Mod_p2s_evntCount)
+makePDFs(Mod_p3s_inputFiles, Mod_p3s_pdf_list, Mod_p3s_evntCount)
 
-makePDFs(Stat_m1s_inputFiles, Stat_m1s_pdf_list)
-makePDFs(Stat_m2s_inputFiles, Stat_m2s_pdf_list)
-makePDFs(Stat_m3s_inputFiles, Stat_m3s_pdf_list)
-makePDFs(Stat_p1s_inputFiles, Stat_p1s_pdf_list)
-makePDFs(Stat_p2s_inputFiles, Stat_p2s_pdf_list)
-makePDFs(Stat_p3s_inputFiles, Stat_p3s_pdf_list)
+makePDFs(Stat_m1s_inputFiles, Stat_m1s_pdf_list, Stat_m1s_evntCount)
+makePDFs(Stat_m2s_inputFiles, Stat_m2s_pdf_list, Stat_m2s_evntCount)
+makePDFs(Stat_m3s_inputFiles, Stat_m3s_pdf_list, Stat_m3s_evntCount)
+makePDFs(Stat_p1s_inputFiles, Stat_p1s_pdf_list, Stat_p1s_evntCount)
+makePDFs(Stat_p2s_inputFiles, Stat_p2s_pdf_list, Stat_p2s_evntCount)
+makePDFs(Stat_p3s_inputFiles, Stat_p3s_pdf_list, Stat_p3s_evntCount)
 
-makePDFs(Track_m1s_inputFiles, Track_m1s_pdf_list)
-makePDFs(Track_m2s_inputFiles, Track_m2s_pdf_list)
-makePDFs(Track_m3s_inputFiles, Track_m3s_pdf_list)
-makePDFs(Track_p1s_inputFiles, Track_p1s_pdf_list)
-makePDFs(Track_p2s_inputFiles, Track_p2s_pdf_list)
-makePDFs(Track_p3s_inputFiles, Track_p3s_pdf_list)
+makePDFs(Track_m1s_inputFiles, Track_m1s_pdf_list, Track_m1s_evntCount)
+makePDFs(Track_m2s_inputFiles, Track_m2s_pdf_list, Track_m2s_evntCount)
+makePDFs(Track_m3s_inputFiles, Track_m3s_pdf_list, Track_m3s_evntCount)
+makePDFs(Track_p1s_inputFiles, Track_p1s_pdf_list, Track_p1s_evntCount)
+makePDFs(Track_p2s_inputFiles, Track_p2s_pdf_list, Track_p2s_evntCount)
+makePDFs(Track_p3s_inputFiles, Track_p3s_pdf_list, Track_p3s_evntCount)
 
 # Place the pdfs into a RooArgList
 Nominal_pdfs  = RooArgList()
@@ -476,37 +514,37 @@ setting = R.RooMomentMorph.Linear
 # For the interpolated mass points
 m  = w.factory('m[70,230]')
 
-Zords = [['_nominal_' , Nominal_pdfs   , Nominal_paramVec ],
-	 ['_base_m1s_', Base_m1s_pdfs  , Base_m1s_paramVec],
-	 ['_base_m2s_', Base_m2s_pdfs  , Base_m2s_paramVec], 
-	 ['_base_m3s_', Base_m3s_pdfs  , Base_m3s_paramVec],
-	 ['_base_p1s_', Base_p1s_pdfs  , Base_p1s_paramVec],
-	 ['_base_p2s_', Base_p2s_pdfs  , Base_p2s_paramVec],
-	 ['_base_p3s_', Base_p3s_pdfs  , Base_p3s_paramVec],
-	 ['_mod_m1s_', Mod_m1s_pdfs    , Mod_m1s_paramVec],
-	 ['_mod_m2s_', Mod_m2s_pdfs    , Mod_m2s_paramVec], 
-	 ['_mod_m3s_', Mod_m3s_pdfs    , Mod_m3s_paramVec],
-	 ['_mod_p1s_', Mod_p1s_pdfs    , Mod_p1s_paramVec],
-	 ['_mod_p2s_', Mod_p2s_pdfs    , Mod_p2s_paramVec],
-	 ['_mod_p3s_', Mod_p3s_pdfs    , Mod_p3s_paramVec],
-	 ['_stat_m1s_', Stat_m1s_pdfs  , Stat_m1s_paramVec],
-	 ['_stat_m2s_', Stat_m2s_pdfs  , Stat_m2s_paramVec], 
-	 ['_stat_m3s_', Stat_m3s_pdfs  , Stat_m3s_paramVec],
-	 ['_stat_p1s_', Stat_p1s_pdfs  , Stat_p1s_paramVec],
-	 ['_stat_p2s_', Stat_p2s_pdfs  , Stat_p2s_paramVec],
-	 ['_stat_p3s_', Stat_p3s_pdfs  , Stat_p3s_paramVec],
-	 ['_track_m1s_', Track_m1s_pdfs, Track_m1s_paramVec],
-	 ['_track_m2s_', Track_m2s_pdfs, Track_m2s_paramVec], 
-	 ['_track_m3s_', Track_m3s_pdfs, Track_m3s_paramVec],
-	 ['_track_p1s_', Track_p1s_pdfs, Track_p1s_paramVec],
-	 ['_track_p2s_', Track_p2s_pdfs, Track_p2s_paramVec],
-	 ['_track_p3s_', Track_p3s_pdfs, Track_p3s_paramVec]]
+Zords = [['_nominal_' , Nominal_pdfs   , Nominal_paramVec  ,  Nom_evntCount     ],
+	 ['_base_m1s_', Base_m1s_pdfs  , Base_m1s_paramVec ,  Base_m1s_evntCount],
+	 ['_base_m2s_', Base_m2s_pdfs  , Base_m2s_paramVec ,  Base_m2s_evntCount], 
+	 ['_base_m3s_', Base_m3s_pdfs  , Base_m3s_paramVec ,  Base_m3s_evntCount],
+	 ['_base_p1s_', Base_p1s_pdfs  , Base_p1s_paramVec ,  Base_p1s_evntCount],
+	 ['_base_p2s_', Base_p2s_pdfs  , Base_p2s_paramVec ,  Base_p2s_evntCount],
+	 ['_base_p3s_', Base_p3s_pdfs  , Base_p3s_paramVec ,  Base_p3s_evntCount],
+	 ['_mod_m1s_', Mod_m1s_pdfs    , Mod_m1s_paramVec  ,   Mod_m1s_evntCount],
+	 ['_mod_m2s_', Mod_m2s_pdfs    , Mod_m2s_paramVec  ,   Mod_m2s_evntCount], 
+	 ['_mod_m3s_', Mod_m3s_pdfs    , Mod_m3s_paramVec  ,   Mod_m3s_evntCount],
+	 ['_mod_p1s_', Mod_p1s_pdfs    , Mod_p1s_paramVec  ,   Mod_p1s_evntCount],
+	 ['_mod_p2s_', Mod_p2s_pdfs    , Mod_p2s_paramVec  ,   Mod_p2s_evntCount],
+	 ['_mod_p3s_', Mod_p3s_pdfs    , Mod_p3s_paramVec  ,   Mod_p3s_evntCount],
+	 ['_stat_m1s_', Stat_m1s_pdfs  , Stat_m1s_paramVec ,  Stat_m1s_evntCount],
+	 ['_stat_m2s_', Stat_m2s_pdfs  , Stat_m2s_paramVec ,  Stat_m2s_evntCount], 
+	 ['_stat_m3s_', Stat_m3s_pdfs  , Stat_m3s_paramVec ,  Stat_m3s_evntCount],
+	 ['_stat_p1s_', Stat_p1s_pdfs  , Stat_p1s_paramVec ,  Stat_p1s_evntCount],
+	 ['_stat_p2s_', Stat_p2s_pdfs  , Stat_p2s_paramVec ,  Stat_p2s_evntCount],
+	 ['_stat_p3s_', Stat_p3s_pdfs  , Stat_p3s_paramVec ,  Stat_p3s_evntCount],
+	 ['_track_m1s_', Track_m1s_pdfs, Track_m1s_paramVec, Track_m1s_evntCount],
+	 ['_track_m2s_', Track_m2s_pdfs, Track_m2s_paramVec, Track_m2s_evntCount], 
+	 ['_track_m3s_', Track_m3s_pdfs, Track_m3s_paramVec, Track_m3s_evntCount],
+	 ['_track_p1s_', Track_p1s_pdfs, Track_p1s_paramVec, Track_p1s_evntCount],
+	 ['_track_p2s_', Track_p2s_pdfs, Track_p2s_paramVec, Track_p2s_evntCount],
+	 ['_track_p3s_', Track_p3s_pdfs, Track_p3s_paramVec, Track_p3s_evntCount]]
 
 
 # Desired interpolation points
-#interp = range(110,190,20)
+interp = range(105,200,5)
 # For debugging
-interp = [130, 140]
+#interp = [130]
 
 def GetFilename(val, label):
 	str0 = 'rootFiles/'
@@ -522,36 +560,37 @@ def GetFilename(val, label):
 	
 	return filename
 
-def GetEventNumber(val, label):
-	return 10000
+def GetEventNumber(val, label, evntCount):
+	masses = [100, 125, 150, 175, 200]
+	z = np.polyfit(masses, evntCount, 1)
+	count = z[0]*val + z[1]
+	return count
 
 # The morphed objects have the wrong binning, and I'm having trouble fixing it.
 # For now, I'm creating a histo generated with 100k points and making a pdf from that.
 # Super wasteful, I know... still working on it.
 m = w.factory('m[70,230]')
-for [label, pdfs, paramVec] in Zords:
-	print("things are coming....................")
-	print(label)
-	pdfs.Print()
-	paramVec.Print()
+c1 = R.TCanvas('c1', 'c1', 1200, 900)
+frame = x.frame()
+frame.SetXTitle('Z\' candidate large-R jet mass [GeV]')
+frame.SetYTitle(' ')
+frame.SetTitle('RooMomentMorphing with Histograms')
+for [label, pdfs, paramVec, evntCount] in Zords:
 	morph = R.RooMomentMorph( label[1:-1], label[1:-1], m, RooArgList(x), pdfs, paramVec, setting)
-	getattr(w, 'import')(label[1:-1])
-	morph.Print() 
-	c1 = R.TCanvas('c1', 'c1', 1200, 900)
-	frame = x.frame()
-	frame.SetXTitle('Z\' candidate large-R jet mass [GeV]')
-	frame.SetYTitle(' ')
-	frame.SetTitle('RooMomentMorphing with Histograms')
+	getattr(w, 'import')(label[1:-1]) 
 	for val in interp:
 		m.setVal(val)
 		SaveFilename = GetFilename(val, label)
-		numEvents = GetEventNumber(val, label)
+		numEvents = GetEventNumber(val, label, evntCount)
 		hist = morph.generateBinned(RooArgSet(x), numEvents, R.kTRUE)
 		hist.plotOn(frame)
 		hist_TH1 = hist.createHistogram('x',32)
 		hist_TH1.SaveAs(SaveFilename)
 
 
-frame.Draw()
+#frame.Draw()
 #c1.SaveAs('RooMomentMorph_Histograms.png')
-raw_input()
+endTime = time.time()
+totalTime = endTime - startTime
+print 'Total time to run: ' ,totalTime
+
